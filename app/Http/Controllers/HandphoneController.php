@@ -7,76 +7,111 @@ use Illuminate\Support\Facades\DB;
 
 class HandphoneController extends Controller
 {
+    // Method to list data with search and pagination
     public function index(Request $request)
     {
-        // menangkap data pencarian
+        // Capture search and pagination parameters
         $cari = $request->cari;
-
-        // mengatur jumlah pagination
         $pagination = $request->query('pagination', 10);
 
-        // mengambil data dari table handphone sesuai pencarian data
-        if ($cari == null) {
-            $handphone = DB::table('handphone')->paginate($pagination);
-        } else {
-            $handphone = DB::table('handphone')
-                ->where('merkhandphone', 'like', "%" . $cari . "%")
-                ->paginate($pagination);
-        }
+        // Fetch data based on search input or default query
+        $handphone = DB::table('handphone')
+            ->when($cari, function ($query, $cari) {
+                return $query->where('handphone_nama', 'like', "%" . $cari . "%");
+            })
+            ->paginate($pagination);
 
-        // mengirim data handphone ke view index
+        // Send data to the view
         return view('datahandphone', ['handphone' => $handphone]);
     }
 
+    // Method to show form for adding a new handphone
     public function tambah()
     {
-        return view('tambahhandphone');
+        return view('tambahhandphone'); // No data is passed since this is just a form
     }
 
-    // method untuk insert data ke table handphone
+    // Method to insert data into the handphone table
     public function store(Request $request)
     {
-        // insert data ke table handphone
-        DB::table('handphone')->insert([
-            'merkhandphone' => $request->merkhandphone,
-            'stockhandphone' => $request->stockhandphone,
-            'tersedia' => $request->tersedia
+        // Validate input data
+        $validatedData = $request->validate([
+            'handphone_nama' => 'required|string|max:255',
+            'handphone_jumlah' => 'required|integer|min:0',
+            'handphone_tersedia' => 'required|in:Y,N',
         ]);
-        // redirect halaman ke halaman handphone
-        return redirect('/handphone');
+
+        // Insert data into the table
+        DB::table('handphone')->insert([
+            'handphone_nama' => $validatedData['handphone_nama'],
+            'handphone_jumlah' => $validatedData['handphone_jumlah'],
+            'handphone_tersedia' => $validatedData['handphone_tersedia']
+        ]);
+
+        // Redirect back to the handphone listing
+        return redirect('/handphone')->with('success', 'Handphone berhasil ditambahkan.');
     }
 
-    // method untuk menampilkan form edit data handphone
-    public function editGet($kodehandphone)
+    // Method to show edit form for a specific handphone
+    public function editGet($id)
     {
-        // mengambil data handphone berdasarkan id
-        $handphone = DB::table('handphone')->where('kodehandphone', $kodehandphone)->first();
+        // Fetch data for the given handphone ID
+        $handphone = DB::table('handphone')->where('handphone_id', $id)->first();
 
-        // passing data handphone yang didapat ke view edit
+        // Check if handphone exists
+        if (!$handphone) {
+            return redirect('/handphone')->with('error', 'Data handphone tidak ditemukan.');
+        }
+
+        // Pass data to the edit view
         return view('edithandphone', ['handphone' => $handphone]);
     }
 
-    // method untuk update data handphone
-    public function editPost(Request $request, $kodehandphone)
+    // Method to update handphone data
+    public function editPost(Request $request, $id)
     {
-        // update data handphone berdasarkan id
-        DB::table('handphone')->where('kodehandphone', $request->kodehandphone)->update([
-            'merkhandphone' => $request->merkhandphone,
-            'stockhandphone' => $request->stockhandphone,
-            'tersedia' => $request->tersedia
+        // Validate input data
+        $validatedData = $request->validate([
+            'handphone_nama' => 'required|string|max:255',
+            'handphone_jumlah' => 'required|integer|min:0',
+            'handphone_tersedia' => 'required|in:Y,N',
         ]);
 
-        // redirect halaman kembali ke halaman handphone
-        return redirect('/handphone');
+        // Update the handphone data in the table
+        DB::table('handphone')->where('handphone_id', $id)->update([
+            'handphone_nama' => $validatedData['handphone_nama'],
+            'handphone_jumlah' => $validatedData['handphone_jumlah'],
+            'handphone_tersedia' => $validatedData['handphone_tersedia']
+        ]);
+
+        // Redirect back to the handphone listing
+        return redirect('/handphone')->with('success', 'Handphone berhasil diperbarui.');
     }
 
-    // method untuk hapus data handphone
-    public function delete($kodehandphone)
+    // Method to toggle 'tersedia' status
+    public function updateTersedia(Request $request, $id)
     {
-        // hapus data handphone berdasarkan id
-        DB::table('handphone')->where('kodehandphone', $kodehandphone)->delete();
+        // Validate input
+        $validated = $request->validate([
+            'handphone_tersedia' => 'required|in:Y,N',
+        ]);
 
-        // redirect halaman kembali ke halaman handphone
-        return redirect('/handphone');
+        // Update the 'tersedia' field in the database
+        DB::table('handphone')
+            ->where('handphone_id', $id)
+            ->update(['handphone_tersedia' => $validated['tersedia']]);
+
+        // Redirect back with a success message
+        return redirect('/handphone')->with('success', 'Status Tersedia berhasil diubah.');
+    }
+
+    // Method to delete handphone data
+    public function delete($id)
+    {
+        // Delete the handphone record
+        DB::table('handphone')->where('handphone_id', $id)->delete();
+
+        // Redirect back to the handphone listing
+        return redirect('/handphone')->with('success', 'Handphone berhasil dihapus.');
     }
 }

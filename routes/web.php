@@ -7,6 +7,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\PegawaiDBController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\HandphoneController;
+use App\Http\Controllers\PengunjungController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,3 +80,7 @@ Route::post('/handphone/store', [HandphoneController::class, 'store']);
 Route::get('/handphone/edit/{kodelaptop}', [HandphoneController::class, 'editGet']);
 Route::post('/handphone/edit/{kodelaptop}', [HandphoneController::class, 'editPost']);
 Route::delete('/handphone/hapus/{kodelaptop}', [HandphoneController::class, 'delete']);
+Route::put('/handphone/tersedia/{id}', [HandphoneController::class, 'updateTersedia']);
+
+Route::get('/pengunjung', [PengunjungController::class, 'index']);
+

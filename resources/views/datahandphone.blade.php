@@ -29,23 +29,28 @@
 			</tr>
 		</thead>
 		<tbody>
-			@foreach($handphone as $h)
+			@foreach($handphone as $item)
 			<tr>
-				<td>{{ $h->kodehandphone }}</td>
-				<td>{{ $h->merkhandphone }}</td>
-				<td>{{ $h->stockhandphone }}</td>
-				<td>
-                    @if ( $h->tersedia === 'Y' )
-                        <i class="fa-solid fa-check text-success"></i>
-                    @else
-                        <i class="fa-solid fa-minus text-danger"></i>
-                    @endif
+				<td>{{ $item->handphone_id }}</td>
+				<td>{{ $item->handphone_nama }}</td>
+				<td>{{ $item->handphone_jumlah }}</td>
+				<td class="text-center">
+                    <!-- Yes/No Button -->
+                    <form action="/handphone/handphone_tersedia/{{ $item->handphone_id }}" method="POST" style="display:inline;">
+                        @csrf
+                        @method('PUT')
+                        @if ($item->handphone_tersedia === 'Y')
+                            <button type="submit" name="handphone_tersedia" value="N" class="btn btn-danger btn-sm">No</button>
+                        @else
+                            <button type="submit" name="handphone_tersedia" value="Y" class="btn btn-success btn-sm">Yes</button>
+                        @endif
+                    </form>
                 </td>
 				<td class="text-center">
-					<a href="/handphone/edit/{{ $h->kodehandphone }}" class="btn btn-warning btn-icon">
+					<a href="/handphone/edit/{{ $item->handphone_id }}" class="btn btn-warning btn-icon">
 						<i class="fa-solid fa-pen-to-square"></i>
 					</a>
-					<form action="/handphone/hapus/{{ $h->kodehandphone }}" method="POST" style="display: inline;">
+					<form action="/handphone/hapus/{{ $item->handphone_id }}" method="POST" style="display: inline;">
 						@csrf
 						@method('DELETE')
 						<button type="submit" class="btn btn-danger btn-icon">
