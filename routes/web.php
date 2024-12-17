@@ -8,6 +8,8 @@ use App\Http\Controllers\PegawaiDBController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\HandphoneController;
 use App\Http\Controllers\PengunjungController;
+use App\Http\Controllers\JadwalController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -83,4 +85,16 @@ Route::delete('/handphone/hapus/{kodelaptop}', [HandphoneController::class, 'del
 Route::put('/handphone/tersedia/{id}', [HandphoneController::class, 'updateTersedia']);
 
 Route::get('/pengunjung', [PengunjungController::class, 'index']);
+
+Route::get('/jadwalujian', [JadwalController::class, 'index'])->name('jadwalujian.index');
+Route::get('/jadwalujian/create', [JadwalController::class, 'create'])->name('jadwalujian.create');
+Route::post('/jadwalujian', [JadwalController::class, 'store'])->name('jadwalujian.store');
+Route::get('/jadwalujian/{id}/edit', [JadwalController::class, 'edit'])->name('jadwalujian.edit');
+Route::put('/jadwalujian/{id}', [JadwalController::class, 'update'])->name('jadwalujian.update');
+
+
+
+
+
+
 
